@@ -1,13 +1,10 @@
 import streamlit as st
 import google.generativeai as genai
-import os
-from dotenv import load_dotenv
 
 # -----------------------------------
-# 1️⃣ Load environment variables
+# 1️⃣ Load API Key from Streamlit Secrets (NOT .env)
 # -----------------------------------
-load_dotenv()
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
 # -----------------------------------
 # 2️⃣ Streamlit UI
@@ -30,17 +27,17 @@ if st.button("Generate Tweets"):
     else:
         with st.spinner("✨ Crafting tweet magic..."):
             prompt = f"""
-            Generate {num_tweets} short, catchy tweets about {topic}.
+            Generate {num_tweets} short, catchy, and well-formatted tweets about {topic}.
+            Each tweet should:
+            - Be under 280 characters
+            - Feel natural and human-like
+            - Include emojis where appropriate
+            - Include 1–3 relevant hashtags at the end
+            - Be separated clearly by blank lines
+            - Avoid numbering in the output
+            - But internally number them before the sentence, like: "1. Your tweet..."
+            Example format:
 
-            Requirements:
-            - Under 280 characters
-            - Include emojis where natural
-            - Include 1–3 hashtags at the end
-            - Separate tweets with one blank line
-            - Do NOT use headings or labels
-            - Start each tweet immediately with no numbering
-
-            Example:
             Life isn’t about waiting for the storm to pass — it’s about learning to dance in the rain. 🌧️💃
             #Motivation #Positivity
 
@@ -49,12 +46,11 @@ if st.button("Generate Tweets"):
 
             model = genai.GenerativeModel("models/gemini-2.5-flash")
             response = model.generate_content(prompt)
-
             tweets = response.text.strip().split("\n\n")
 
             st.success("✅ Tweets generated successfully!")
 
             for tweet in tweets:
-                st.markdown(tweet.strip() + "\n")
+                st.markdown(f"{tweet.strip()}\n")
 
 st.caption("Built using Streamlit & Gemini API 💡")
